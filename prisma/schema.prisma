@@ -1,0 +1,60 @@
+// Topic: Smth like database for movie streaming service
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                      String              @id @default(uuid())
+  username                String              @unique
+  email                   String?             @unique
+  first_name              String
+  last_name               String
+  age                     Int
+  role                    Role                @default(GUEST)
+  favouriteContent        Content[]
+  subscriptionPreferences UpdateSubscription?
+}
+
+model Content {
+  id               String   @id @default(uuid())
+  title            String   @unique
+  description      String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  createdBy        Studio[]
+  amountOfSeasons  Int?     @default(1)
+  amountOfEpisodes Int
+  genre            Genre[]
+  favouritedBy     User[]
+}
+
+model Genre {
+  id        String    @id @default(uuid())
+  genreName String    @unique
+  Content   Content[]
+}
+
+model Studio {
+  id      String    @id @default(uuid())
+  Content Content[]
+}
+
+model UpdateSubscription {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  emailOwner   User     @relation(fields: [userId], references: [id])
+  userId       String   @unique
+  isSubscribed Boolean? @default(true)
+}
+
+enum Role {
+  GUEST
+  ADMIN
+  PUBLISHER
+}
